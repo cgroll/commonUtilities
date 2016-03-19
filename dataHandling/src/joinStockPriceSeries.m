@@ -15,14 +15,7 @@ for ii=1:nStocks
 end
 
 % join tables
-joinedTable = joinMultipleTables(tableContainer);
-
-% % parallel computing
-% joinedTableContainer = cell(1, nCores);
-% for ii=1:nCores
-%    joinedTableContainer{ii} = joinMultipleTables(tableContainer(1:nQuarter));
-%     
-% end
+joinedTable = joinMultipleTables(tableContainer, 'Dates');
 
 end
 
