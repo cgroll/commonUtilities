@@ -12,6 +12,9 @@ function joinedTableSorted = getPrices(dateBeg, dateEnd, tickerSymbs)
 %                   sorted ascending and stored as strings in the RowNames
 %                   property of the table.
 
+% date format
+gvDateFormat = 'yyyy-mm-dd'; % TODO: define on a more global level
+
 % download data
 stockStructure = [];
 for ii=1:length(tickerSymbs)
@@ -22,12 +25,20 @@ end
 % call joinStockPriceSeries
 joinedTable = joinStockPriceSeries(stockStructure);
 
-joinedTableSorted = sortrows(joinedTable, 1);
+% rename Dates column
+assert(strcmp(joinedTable.Properties.VariableNames{1}, 'Dates'))
+joinedTable.Properties.VariableNames{1} = 'Date';
 
-% get dates as row names
-dats = joinedTableSorted{:, 1};
-joinedTableSorted(:, 1) = [];
-joinedTableSorted.Properties.RowNames = dats;
+% sort with regards to time
+joinedTableSorted = sortrows(joinedTable, 'Date');
+
+% convert dates to default date string format
+xx = datenum(joinedTableSorted{:, 'Date'});
+dats = datestr(xx, gvDateFormat);
+
+% move dates to row names
+joinedTableSorted(:, 'Date') = [];
+joinedTableSorted.Properties.RowNames = cellstr(dats);
 
 end
 
