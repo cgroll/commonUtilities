@@ -1,3 +1,7 @@
+%% define output path
+
+relDataPath = '../../finDataMatlab/';
+
 %% download SP500 ticker table
 
 htmlContent = webread('http://en.wikipedia.org/wiki/List_of_S%26P_500_companies');
@@ -59,5 +63,6 @@ sp500IndustryAffiliations = tickerSymbs(:, {'Ticker_symbol', ...
 
 %% save to disk
 
-writetable(sp500IndustryAffiliations,...
-    '../public_data/SP500TickerTable.csv')
+fname = fullfile(relDataPath, 'public_data/SP500TickerTable.csv');
+writetable(sp500IndustryAffiliations, fname)
+    
