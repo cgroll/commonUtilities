@@ -1,10 +1,17 @@
-%% define output path
-
-relDataPath = '../../finDataMatlab/';
+function getSP500TickerTable(relOutPath)
+% download SP500 component table from Wikipedia
+%
+% Inputs:
+%   relOutPath      string, relative path to output file
+%
+% Output: side-effects
+%   Table stored under given file name, output folders created if
+%   non-existent before.
 
 %% download SP500 ticker table
 
-htmlContent = webread('http://en.wikipedia.org/wiki/List_of_S%26P_500_companies');
+wikiUrl = 'http://en.wikipedia.org/wiki/List_of_S%26P_500_companies';
+htmlContent = webread(wikiUrl);
 
 %% get part comprising SP500 components table
 
@@ -61,8 +68,15 @@ tickerSymbs.Properties.VariableNames = colNames;
 sp500IndustryAffiliations = tickerSymbs(:, {'Ticker_symbol', ...
     'Security', 'GICS_Sector', 'GICS_Sub_Industry'});
 
+%% generate path to output file
+
+[outputDir, ~, ~] = fileparts(relOutPath);
+
+% ensure that output directory exists
+if ~exist(outputDir, 'dir'); mkdir(outputDir); end
+
 %% save to disk
 
-fname = fullfile(relDataPath, 'public_data/SP500TickerTable.csv');
-writetable(sp500IndustryAffiliations, fname)
-    
+writetable(sp500IndustryAffiliations, relOutPath)
+
+end
