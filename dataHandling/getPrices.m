@@ -15,11 +15,21 @@ function joinedTableSorted = getPrices(dateBeg, dateEnd, tickerSymbs)
 % date format
 gvDateFormat = 'yyyy-mm-dd'; % TODO: define on a more global level
 
+% init old message length
+oldMsgLength = 0;
+
 % download data
 stockStructure = [];
 for ii=1:length(tickerSymbs)
    currentStock = hist_stock_data(dateBeg, dateEnd, tickerSymbs{1, ii});
    stockStructure = [stockStructure currentStock];
+
+   % show progress
+   progressValue = ii/length(tickerSymbs)*100;
+   msg = ['Progress: ', num2str(progressValue), ' percent       '];
+   fprintf(1, repmat('\b', 1, oldMsgLength));
+   fprintf(1, msg);
+   oldMsgLength = length(msg);
 end
 
 % call joinStockPriceSeries
