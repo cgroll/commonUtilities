@@ -1,4 +1,4 @@
-function fullTab = hcatUnequalTables(tab1, tab2)
+function fullTab = vcatUnequalTables(tab1, tab2)
 % appending table with subset of columns
 %
 % Inputs:
@@ -14,8 +14,9 @@ function fullTab = hcatUnequalTables(tab1, tab2)
 
 % check if all columns of table 2 do occur in table 1
 if all(ismember(tabnames(tab2), tabnames(tab1))) == false
-    error('commonUtil:hcatUnequalTables',...
-            'Columns of table 2 must be subset of table 1.')
+    notSubSetInds = ~ismember(tabnames(tab2), tabnames(tab1));
+    error('vcatUnequalTables',...
+            'Columns of table 2 must be subset of table 1')
 end
 
 % preallocate new table with full number of columns
@@ -38,3 +39,7 @@ end
 fullTab = [tab1; bigTab2];
 
 end
+
+
+
+
