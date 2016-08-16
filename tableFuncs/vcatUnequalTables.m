@@ -15,7 +15,7 @@ function fullTab = vcatUnequalTables(tab1, tab2)
 % check if all columns of table 2 do occur in table 1
 if all(ismember(tabnames(tab2), tabnames(tab1))) == false
     notSubSetInds = ~ismember(tabnames(tab2), tabnames(tab1));
-    error('vcatUnequalTables',...
+    error('commonUtilities:vcatUnequalTables',...
             'Columns of table 2 must be subset of table 1')
 end
 
