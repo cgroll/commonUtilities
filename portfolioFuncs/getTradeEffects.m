@@ -21,6 +21,7 @@ tradeBalance = sum(deltaSell .* currPrices);
 % relative or absolute
 transactionCostType = 'absolute';
 transactionCosts = 0.55; % in Euros
+transactionCosts = 0.001;
 
 % transactionCostType = 'relative';
 % transactionCosts = 0.005; % in percentage points

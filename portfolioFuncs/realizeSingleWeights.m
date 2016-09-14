@@ -1,10 +1,11 @@
-function targetVols = realizeSingleWeights(targetWgts, currVols, currPrices)
+function targetVols = realizeSingleWeights(targetWgts, currETFVols, currPrices, cashVal)
 % find optimal volumes for individual ETFs
 %
 % Inputs:
 %   targetWgts      1xnAss vector of target weights including cash
-%   currVols        1xnAss vector of current volumes including cash
+%   currETFVols     1xnEtf vector of current volumes including cash
 %   currPrices      1xnEtf vector of current ETF prices
+%   cashVal         scalar value of current cash
 %
 % Outputs:
 %   targetVols      1xnEtf vector of optimal ETF volumes
@@ -18,8 +19,7 @@ nIterMax = 10;
 iterCounter = 0;
 
 % get portfolio value
-cashVal = currVols(1);
-etfVols = currVols(2:end);
+etfVols = currETFVols;
 pfVal = sum(currPrices .* etfVols) + cashVal;
 
 % init stopping indicator

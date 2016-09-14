@@ -1,9 +1,9 @@
-function [bestVols, newCash, newWgts] = realizeWgts(targetWgts, currVols, currPrices, cashVal)
+function [bestVols, newCash, newWgts, cashDrain] = realizeWgts(targetWgts, currETFVols, currPrices, cashVal)
 % realize given target weights as closely as possible
 %
 % Inputs:
 %   targetWgts      1xnAss vector of target weights (including cash)
-%   currVols        1xnEtfs vector of current ETF volumes
+%   currETFVols     1xnEtfs vector of current ETF volumes
 %   currPrices      1xnEtfs vector of current ETF prices
 %   cashVal         scalar value with current cash
 %
@@ -14,30 +14,25 @@ function [bestVols, newCash, newWgts] = realizeWgts(targetWgts, currVols, currPr
 
 %% get optimal single weights
 
-targetVols = realizeSingleWeights(targetWgts, currVols, currPrices);
+bestVols = realizeSingleWeights(targetWgts, currETFVols, currPrices, cashVal);
 
 % get new cash value / portfolio value associated with target volumes
-[tradeBalance, tradeCosts] = getTradeEffects(currVols(2:end), targetVols, currPrices);
+[tradeBalance, tradeCosts] = getTradeEffects(currETFVols, bestVols, currPrices);
 
-newCash = updateCash(currVols(1), tradeBalance, tradeCosts);
-newPfVal = newCash + sum(targetVols .* currPrices);
-
-wgts = [newCash, targetVols.*currPrices]./newPfVal;
+newCash = updateCash(cashVal, tradeBalance, tradeCosts);
 
 %% create cash if first proposal is negative
+% - cash MUST be higher than required
 
 if newCash < 0
-    bestVols = createCash(targetWgts, currVols(2:end), targetVols, currPrices, currVols(1))
-    
-    % get associated weights
-    newWgts = getNewWgts(currVols(2:end), bestVols, currPrices, currVols(1))
-    
+    bestVols = createCash(targetWgts, currETFVols, bestVols, currPrices, cashVal);    
 end
 
 %% further adapt weights for joint optimality
-% - cash MUST be higher than required
 % - cash SHOULD not be too high
 
-optSingleWgtLoss = sum((wgts - targetWgts).^2);
+bestVols = burnCash(targetWgts, currETFVols, bestVols, currPrices, cashVal);
 
-bestVols = burnCash(targetWgts, currVols(2:end), targetVols, currPrices, currVols(1))
+%% get associated cash value and weights
+
+[newWgts, newCash, cashDrain] = getNewWgts(currETFVols, bestVols, currPrices, cashVal);

@@ -1,18 +1,18 @@
-function bestVols = burnCash(targetWgts, currVols, bestVols, currPrices, cashVal)
+function bestETFVols = burnCash(targetWgts, currETFVols, bestETFVols, currPrices, cashVal)
 % realize target weights more efficiently by spending additional cash
 
 %% get current weight deviation loss
 
 % get current weights
-pfVal = sum(bestVols .* currPrices) + cashVal;
-wgts = [cashVal, bestVols .* currPrices]./pfVal;
+pfVal = sum(bestETFVols .* currPrices) + cashVal;
+wgts = [cashVal, bestETFVols .* currPrices]./pfVal;
 
 % require as benchmark
 optSingleWgtLoss = sum((wgts - targetWgts).^2);
 
 %% get weight deviation losses for ETF modifications
 
-nEtfs = numel(currVols);
+nEtfs = numel(currETFVols);
 modWgtLoss = zeros(1, nEtfs);
 
 improvementPossible = true;
@@ -21,11 +21,11 @@ while improvementPossible
     
     for ii=1:nEtfs
         % buy one more ETF
-        modifiedVols = bestVols;
+        modifiedVols = bestETFVols;
         modifiedVols(ii) = modifiedVols(ii) + 1;
         
         % get associated weights
-        newWgts = getNewWgts(currVols, modifiedVols, currPrices, cashVal);
+        [newWgts, ~] = getNewWgts(currETFVols, modifiedVols, currPrices, cashVal);
         
         if newWgts(1) < 0
             modWgtLoss(ii) = inf;
@@ -45,7 +45,7 @@ while improvementPossible
     
         %% conduct modification
         if modWgtLoss(I) < optSingleWgtLoss
-            bestVols(I) = bestVols(I) + 1;
+            bestETFVols(I) = bestETFVols(I) + 1;
         else
             improvementPossible = false;
         end

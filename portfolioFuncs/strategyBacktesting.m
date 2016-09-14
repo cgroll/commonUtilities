@@ -22,8 +22,8 @@ dateEnd = '01092016';
 
 %% download prices
 
-prices = getPrices(dateBeg, dateEnd, etfSymbs);
-writetable(prices, '~/someETFprices.csv')
+%prices = getPrices(dateBeg, dateEnd, etfSymbs);
+%writetable(prices, '~/someETFprices.csv')
 
 %% 
 
@@ -70,7 +70,7 @@ grid on
 grid minor
 legend(tabnames(normedPrices(:, 2:end)))
 
-%%
+%% get subset of data without missing observations
 
 % get asset names
 etfNames = tabnames(normedPrices(:, 2:end));
@@ -84,7 +84,6 @@ univPrices = univPrices(:, ['Date', 'Cash', etfNames]);
 
 % get portfolio value
 initValue = 10000;
-oldCash = initValue;
 
 % get target weights
 nEtfs = size(subPrices, 2) - 1;
@@ -94,11 +93,69 @@ targetWgts = [0, 1./nEtfs*ones(1, nEtfs)];
 currPrices = subPrices{1, 2:end};
 
 % current vols
-currVols = [oldCash, 1./nEtfs*zeros(1, nEtfs)];
+currVols = [initValue, 1./nEtfs*zeros(1, nEtfs)];
 
+%%
 
-% get associated weights
-newWgts = getNewWgts(currVols(2:end), bestVols, currPrices, currVols(1))
+nDays = size(subPrices, 1);
 
+% preallocation
+stratVols = zeros(nDays, nEtfs + 1);
+realWgts = zeros(nDays, nEtfs + 1);
+cashDrains = zeros(nDays, 1);
 
+currETFVols = zeros(1, nEtfs);
+cashVal = initValue;
 
+for ii=1:nDays
+    % get associated weights
+    [bestVols, newCash, newWgts, cashDrain] = ...
+        realizeWgts(targetWgts, currETFVols, subPrices{ii, 2:end}, cashVal);
+    
+    % store best volumes
+    stratVols(ii, 1) = newCash;
+    stratVols(ii, 2:end) = bestVols;
+    
+    % store cash drains
+    cashDrains(ii) = cashDrain;
+    
+    % store weights
+    realWgts(ii, :) = newWgts;
+
+    % overwrite old variables
+    cashVal = newCash;
+    currETFVols = bestVols;
+end
+
+%% evaluate obtained volumes
+
+% no negative cash value
+any(realWgts(:, 1) < 0)
+
+% get squared deviations
+lossFuncs = sum((realWgts - repmat(targetWgts, nDays, 1)).^2, 2);
+plot(lossFuncs)
+
+%%
+
+area(realWgts)
+
+%%
+
+plot(stratVols)
+
+%% get portfolio values
+
+pfVals = sum(stratVols(:, 2:end) .* subPrices{:, 2:end}, 2) + stratVols(:, 1);
+
+%%
+plot(subPrices.Date, pfVals)
+datetick 'x'
+grid on
+grid minor
+
+%%
+
+nYears = (subPrices.Date(end) - subPrices.Date(1))/365;
+
+((pfVals(end) / pfVals(1)).^(1/nYears) - 1)*100
