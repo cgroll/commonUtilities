@@ -1,30 +1,41 @@
-function retsTable = price2retWithHolidays(prices, varargin)
-% logic to avoid that single price NaN leads to two NaNs in returns
+function retsTable = price2retWithHolidays(prices, datesInFirstCol)
 %
 % Input:
-%   prices      nxm table of prices
-%   varargin    variable input arguments that get passed on to function
-%               computeReturns; if empty, default returns will be
-%               logarithmic single period returns
+%   prices              nxm matrix or table of prices
+%   datesInFirstCol     boolean: is first column dates column
 %
 % Output:
-%   retsTable    (n-1)xm table of returns
+%   retsTable    (n-1)xm table of logarithmic returns
 
-% store missing values to include again afterwards
+if datesInFirstCol
+    % extract dates for later use
+    dates = prices(:, 1);
+    
+    % get only prices
+    prices = prices(:, 2:end);
+end
+    
+% get missing values
 missingValues = isnan(prices{:,:});
 
-% temporarily impute single missing values
-pricesImputed = imputeWithLastDay(prices);
+% get log prices
+logPrices = log(prices{:,:});
+pricesImputed = imputeWithLastDay(logPrices);
 
-% impute once again? if two consecutive NaNs should be treated also
+% impute once again?
 % pricesImputed = imputeWithLastDay(pricesImputed);
 
 % calculate returns
-rets = computeReturns(pricesImputed, varargin{:});
+rets = diff(pricesImputed);
 
 % fill in NaNs again
-xx = rets{:, :};
-xx(missingValues(2:end, :)) = NaN;
-retsTable = embed(xx, rets);
+rets(missingValues(2:end, :)) = NaN;
+
+% attach meta-data
+retsTable = array2table(rets, 'VariableNames', tabnames(prices));
+
+if datesInFirstCol
+    retsTable = [dates(2:end, :) retsTable];
+end
 
 end
