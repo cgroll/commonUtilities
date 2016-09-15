@@ -159,3 +159,116 @@ grid minor
 nYears = (subPrices.Date(end) - subPrices.Date(1))/365;
 
 ((pfVals(end) / pfVals(1)).^(1/nYears) - 1)*100
+
+%% comparisong to individual annualized returns
+
+((subPrices{end, 2:end} ./ subPrices{1, 2:end}).^(1/nYears) - 1)*100
+
+%% plot return series
+
+logRets = price2retWithHolidays(subPrices, true);
+
+%%
+
+desiredRows = 3;
+nCols = ceil(nEtfs / desiredRows);
+nRows = desiredRows;
+
+for ii=1:nEtfs
+    subplot(nRows, nCols, ii)
+    plot(logRets.Date, logRets{:, ii+1}*100)
+    datetick 'x'
+    grid on
+end
+
+%% estimate GARCH(1,1)
+
+% preallocation
+volas = logRets;
+
+garchSpec = garch(1, 1);
+
+for ii=1:nEtfs
+    garchHat = estimate(garchSpec, logRets{:, ii+1}*100);
+    
+    % get associated sigma series
+    varHat = infer(garchHat, logRets{:, ii+1}*100);
+    
+    volas{:, ii+1} = sqrt(varHat);
+end
+
+%%
+
+plot(volas.Date, volas{:, 2:end})
+datetick 'x'
+grid on
+grid minor
+legend(tabnames(subPrices(:, 2:end)))
+
+%% Plot vola in ranks
+
+rnkVolas = ranks(volas{:, 2:end});
+subplot(2, 1, 1)
+plot(volas.Date, rnkVolas)
+datetick 'x'
+grid on
+grid minor
+legend(tabnames(subPrices(:, 2:end)), 'Location', 'Southwest')
+
+subplot(2, 1, 2)
+plot(volas.Date, mean(rnkVolas, 2), '-k')
+datetick 'x'
+grid on
+grid minor
+
+%% plot moving averages
+
+% preallocation
+mvAvgs1 = logRets;
+mvAvgs2 = logRets;
+
+for ii=1:nEtfs
+    [Short, Long] = movavg(logRets{:, ii+1}*100, 100, 300, 0);
+    mvAvgs1{:, ii+1} = Short;
+    mvAvgs2{:, ii+1} = Long;
+end
+
+%%
+plot(mvAvgs1.Date, mvAvgs1{:, 2:end})
+datetick 'x'
+grid on
+grid minor
+
+%% plot moving averages of scaled returns
+
+scaledRets = logRets;
+scaledRets{:, 2:end} = logRets{:, 2:end}./volas{:, 2:end};
+
+%% plot moving averages
+
+% preallocation
+mvAvgs1 = logRets;
+mvAvgs2 = logRets;
+
+for ii=1:nEtfs
+    [Short, Long] = movavg(scaledRets{:, ii+1}, 100, 300, 0);
+    mvAvgs1{:, ii+1} = Short;
+    mvAvgs2{:, ii+1} = Long;
+end
+
+%%
+subplot(2, 1, 1)
+plot(mvAvgs1.Date, mvAvgs1{:, 2:end})
+datetick 'x'
+grid on
+grid minor
+
+subplot(2, 1, 2)
+plot(mvAvgs2.Date, mvAvgs2{:, 2:end})
+datetick 'x'
+grid on
+grid minor
+
+%%
+
+imagesc(corr(mvAvgs1{:, 2:end}), [-1 1])
