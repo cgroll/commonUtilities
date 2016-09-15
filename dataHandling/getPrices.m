@@ -39,16 +39,11 @@ joinedTable = joinStockPriceSeries(stockStructure);
 assert(strcmp(joinedTable.Properties.VariableNames{1}, 'Dates'))
 joinedTable.Properties.VariableNames{1} = 'Date';
 
+% convert dates to numeric date format
+joinedTable.Date = datenum(joinedTable.Date, gvDateFormat);
+
 % sort with regards to time
 joinedTableSorted = sortrows(joinedTable, 'Date');
-
-% convert dates to default date string format
-xx = datenum(joinedTableSorted{:, 'Date'});
-dats = datestr(xx, gvDateFormat);
-
-% move dates to row names
-joinedTableSorted(:, 'Date') = [];
-joinedTableSorted.Properties.RowNames = cellstr(dats);
 
 end
 
