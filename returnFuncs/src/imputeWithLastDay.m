@@ -1,13 +1,10 @@
-function imputedValues = imputeWithLastDay(valuesTab)
+function imputedValues = imputeWithLastDay(values)
 %
 % Inputs:
-%   values  nxm table
+%   values  nxm matrix
 %
 % Outputs:
 %   values  nxm matrix with imputed values
-
-% extract values
-values = valuesTab{:, :};
 
 % find missing values
 missingValues = isnan(values);
@@ -20,7 +17,6 @@ replaceWith = logical([missingValues(2:end, :); zeros(1, nRows)]);
 % Replace NaN with observation of last day. 
 values(nansToReplace) = values(replaceWith);
 
-% make table again
-imputedValues = embed(values, valuesTab);
+imputedValues = values;
 
 end
