@@ -28,13 +28,13 @@ for jj=1:length(vals)
     if rightEnd > length(vals)
         rightEnd = length(vals);
     end
-    vicin = vals(leftEnd:rightEnd);
+    vicin = [vals(leftEnd:jj-1); vals(jj+1:rightEnd)];
     
     % check if current point is local extrema
-    if all(vicin <= vals(jj))
+    if all(vicin < vals(jj))
         locMax(jj) = true;
     end
-    if all(vicin >= vals(jj))
+    if all(vicin > vals(jj))
         locMin(jj) = true;
     end
 end
@@ -52,25 +52,56 @@ locExtrema = [locMin; locMax];
 locExtrema = sortrows(locExtrema);
 
 % remove consecutive extrema of equal type
-for jj=2:size(locExtrema, 1)
-    if locExtrema(jj, 2) == locExtrema(jj-1, 2) % both extrema of same type
+nExtrema = size(locExtrema, 1);
+for jj=1:(nExtrema - 1)
+    % get this extremum type
+    thisType = locExtrema(jj, 2);
+    thisExtr = vals(locExtrema(jj, 1));
+    
+    if thisType == 0
+        % skip
+    else
+        % find series of this type
+        equalTypesFollow = locExtrema(jj:end, 2) == thisType;
+        equalTypesEnd = find(equalTypesFollow == 0, 1) - 1;
+        if isempty(equalTypesEnd)
+            equalTypesEnd = length(equalTypesFollow) - 1;
+        end
         
-        % if both are minima
-        if locExtrema(jj, 2) == -1
-            % only keep smaller one
-            if vals(locExtrema(jj, 1)) < vals(locExtrema(jj-1, 1))
-                locExtrema(jj-1, 2) = 0;
-            else
-                locExtrema(jj, 2) = 0;
-            end
-            
-            % if both are maxima
-        elseif locExtrema(jj, 2) == 1
-            if vals(locExtrema(jj, 1)) > vals(locExtrema(jj-1, 1))
-                locExtrema(jj-1, 2) = 0;
-            else
-                locExtrema(jj, 2) = 0;
+        equalSeries = false(size(locExtrema(:, 1)));
+        equalSeries((jj+1):(jj+equalTypesEnd - 1)) = true;
+        
+        % if series is not empty
+        if(any(equalSeries))
+            thisVals = vals(locExtrema(equalSeries, 1));
+            if thisType == -1
+                % is minimum?
+                if ~all(thisVals > thisExtr)
+                    locExtrema(jj, 2) = 0;
+                else
+                    locExtrema(equalSeries, 2) = 0;
+                end
+            elseif thisType == 1
+                % is maximum?
+                if ~all(thisVals < thisExtr)
+                    locExtrema(jj, 2) = 0;
+                else
+                    locExtrema(equalSeries, 2) = 0;
+                end
             end
         end
     end
 end
+
+% make last value 0 if equal to previous value
+% NOTE: upper logic always checks for the next value, but modifies only current value
+if nExtrema > 1
+    lastTwoExtrema = find(locExtrema(:, 2) ~= 0, 2, 'last');
+    if locExtrema(end, 2) == locExtrema(lastTwoExtrema(1), 2)
+        locExtrema(end, 2) = 0;
+    end
+end
+
+% guarantee that real extrema are alternating
+xxRealExtrema = locExtrema(locExtrema(:, 2) ~= 0, :);
+assert(all(abs(diff(xxRealExtrema(:, 2))) == 2), 'Real extrema must be alternating')

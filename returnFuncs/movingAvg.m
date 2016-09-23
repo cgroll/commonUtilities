@@ -9,7 +9,8 @@ thisMvAvg = filter(dataWgts, 1, dataVals);
 
 % treat first values as NaNs
 if skipWarmup
-    thisMvAvg(1:(windowSize-1)) = NaN;
+    maxSkip = min(windowSize-1, length(thisMvAvg));
+    thisMvAvg(1:maxSkip) = NaN;
 end
 
 end
