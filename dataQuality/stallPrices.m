@@ -40,3 +40,6 @@ xx = seriesTab{:, :};
 xx(xx == 0) = NaN;
 seriesTab{:, :} = xx;
 
+% assert that number of columns was not changed
+assert(size(seriesTab, 2) == size(stockData, 2))
+
