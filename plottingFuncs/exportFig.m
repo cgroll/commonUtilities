@@ -79,7 +79,10 @@ else
     end
     
     % refine line width
-    set(get(h, 'children'), 'LineWidth', 1);
+    try
+        set(get(h, 'children'), 'LineWidth', 1);
+    catch
+    end
     
     % make background color white
     set(h, 'Color', 'w');
