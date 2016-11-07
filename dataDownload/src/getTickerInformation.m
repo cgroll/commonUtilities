@@ -10,10 +10,10 @@ nReps = ceil(nAss/blockSize);
 
 for ii=1:nReps
     % get ticker symbols in current block
-    maxEnd = min(ii*200, nAss);
+    maxEnd = min(ii*blockSize, nAss);
     
     % make string for ticker symbols
-    tickSymSequ = strjoin(tickers(((ii-1)*200 + 1):maxEnd), '+');
+    tickSymSequ = strjoin(tickers(((ii-1)*blockSize + 1):maxEnd), '+');
     
     % download data from yahoo
     [temp, status] = urlread(strcat('http://finance.yahoo.com/d/quotes.csv?s=',...
