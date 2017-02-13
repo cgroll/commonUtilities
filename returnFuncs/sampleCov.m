@@ -9,7 +9,8 @@ wgts = covLambdaVal.^powVec;
 wgts = wgts / sum(wgts);
 
 % get sample mean
-mus = sampleMean(data, meanLambdaVal);
+% mus = sampleMean(data, meanLambdaVal);
+mus = mean(data, 'omitnan');
 
 % adjust observations for mean value
 zeroMeanData = data - repmat(mus, nObs, 1);
