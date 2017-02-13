@@ -10,6 +10,7 @@ function exportFig(h, figName, projPath, fmt, closeInd, rescaleInd)
 %   rescaleInd  indicator whether figure should be re-scaled to absolute
 %               target size
 
+
 %% treat optional inputs
 
 if ~exist('projPath', 'var')
@@ -41,6 +42,13 @@ else
     
     % get figure file
     fname = fullfile(outDir, [figName, '.', fmt]);
+    
+
+    %% include short break to stabilize figure export
+    
+    pause(0.05);
+    drawnow();
+
     
     %% set figure size
     
