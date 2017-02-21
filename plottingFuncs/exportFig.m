@@ -14,7 +14,7 @@ function exportFig(h, figName, projPath, fmt, closeInd, rescaleInd)
 %% treat optional inputs
 
 if ~exist('projPath', 'var')
-    projPath = './';
+    projPath = './devPics';
 end
 
 if ~exist('fmt', 'var')
@@ -35,7 +35,7 @@ else
     end
     
     % output directory
-    outDir = fullfile(projPath, 'pics');
+    outDir = projPath;
     if ~exist(outDir, 'dir')
         mkdir(outDir)
     end
