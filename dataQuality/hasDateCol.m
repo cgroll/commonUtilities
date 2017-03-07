@@ -15,7 +15,7 @@ allowedDateNames = {'Date'};
 
 % value restrictions
 lowBoundVal = datenum('1880-01-01');
-highBoundVal = datenum('2030-01-01');
+highBoundVal = datenum('2080-01-01');
 
 %%
 
