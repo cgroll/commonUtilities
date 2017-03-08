@@ -27,6 +27,9 @@ switch freq
         
     case 'monthly'
         
+        % aggregate per year
+        dataTab.Date = eomdate(dats);
+        
     case 'quarterly'
         
     case 'yearly'
