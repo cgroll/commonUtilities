@@ -1,4 +1,20 @@
 function [histInfo, futureVals] = getPredInfoSets(X, y, lagWindow, futureHorizon)
+% create predictor from past observations and predict multi-period future
+%
+% Inputs:
+%   X       nObs x nVars matrix of explanatory variables
+%   Y       nObs x 1 variable to be predicted. X(ii) and Y(ii) must be
+%           concurrent!
+%   nPastWindow     specifying how much past observations may be used to
+%                   predict Y
+%   nFutureHoriz    specifying how many periods should be predicted
+%
+% Other possible inputs:
+%   - which function to compress past information: exponential weighted,
+%     mean?
+%   - which measure to evaluate predictive power? R^2, correlation,
+%     Kendall's tau, RMSE, MAE
+%
 
 
 %% aggregate historic information
